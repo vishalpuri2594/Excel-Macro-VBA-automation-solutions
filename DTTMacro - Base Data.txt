@@ -1,0 +1,159 @@
+Sub DTTMacro()
+
+' TODO : Update the team members accordingly for respective teams
+
+' Names that come in the exported BISM excel sheet
+Team = Array("Atul Kumar", "Gaffer Mohammed", "Rashmita Parida", "Puri Vishal", "Jagadishbabu Nagarapu", "Ramesh Vadugu")
+' Names that are maintained in the DTT for the respective team
+Team_Acc = Array("atul.o.kumar", "gaffar.mohammed", "rashmita.parida", "vishal.puri", "j.babu.nagarapu", "vishal.puri")
+
+Application.ScreenUpdating = False
+
+' Reading the DTT for last line and it's path
+Max_Base = Sheet1.Cells(Rows.Count, 1).End(xlUp).Row
+folderPath = Application.ActiveWorkbook.Path
+Set Wb = ThisWorkbook
+
+' Look for open tickets sheet - open it
+Workbooks.Open Filename:=folderPath & "\OpenTickets" & ".xlsx"
+
+' Iterate across open tickets and if not in the base sheet - add to that
+' Populate the remaining columns for the newly added open ticket rows
+Max_Open = Workbooks("OpenTickets").Worksheets("Sheet1").Cells(Rows.Count, 1).End(xlUp).Row
+
+For a = 2 To Max_Open
+    If Application.WorksheetFunction.IsError(Application.Match(Workbooks("OpenTickets").Worksheets("Sheet1").Range("A" & a).Value, Wb.ActiveSheet.Range("A:A"), 0)) Then
+       For i = 0 To UBound(Team)
+           If Workbooks("OpenTickets").Worksheets("Sheet1").Range("G" & a).Value = Team(i) Then
+              Max_Base = Max_Base + 1
+              Wb.ActiveSheet.Range("A" & Max_Base).Value = Workbooks("OpenTickets").Worksheets("Sheet1").Range("A" & a).Value
+              If Workbooks("OpenTickets").Worksheets("Sheet1").Range("I" & a).Value = "User / Order Request" Then
+                 Wb.ActiveSheet.Range("B" & Max_Base).Value = Replace(Workbooks("OpenTickets").Worksheets("Sheet1").Range("I" & a).Value, "/", "")
+                 Wb.ActiveSheet.Range("B" & Max_Base).Value = Replace(Wb.ActiveSheet.Range("B" & Max_Base).Value, " ", "")
+             Else
+                 Wb.ActiveSheet.Range("B" & Max_Base).Value = Replace(Workbooks("OpenTickets").Worksheets("Sheet1").Range("I" & a).Value, " ", "")
+             End If
+              Wb.ActiveSheet.Range("C" & Max_Base).Value = Workbooks("OpenTickets").Worksheets("Sheet1").Range("B" & a).Value
+              Wb.ActiveSheet.Range("D" & Max_Base).Value = "P" & Right(Workbooks("OpenTickets").Worksheets("Sheet1").Range("C" & a).Value, 1)
+              Wb.ActiveSheet.Range("E" & Max_Base).Value = Workbooks("OpenTickets").Worksheets("Sheet1").Range("D" & a).Value
+              Wb.ActiveSheet.Range("F" & Max_Base).Value = Team_Acc(i)
+              If Workbooks("OpenTickets").Worksheets("Sheet1").Range("J" & a).Value = "In progress" Then
+                 Wb.ActiveSheet.Range("G" & Max_Base).Value = "In-Progress"
+              ElseIf Workbooks("OpenTickets").Worksheets("Sheet1").Range("J" & a).Value = "Awaiting customer information" Or Workbooks("OpenTickets").Worksheets("Sheet1").Range("J" & a).Value = "Awaiting external information" Then
+                 Wb.ActiveSheet.Range("G" & Max_Base).Value = "On-hold"
+              End If
+              
+              'Non key columns
+              Wb.ActiveSheet.Range("I" & Max_Base).Value = "No"
+              Wb.ActiveSheet.Range("J" & Max_Base).Value = "NA"
+              Wb.ActiveSheet.Range("K" & Max_Base).Value = "NA"
+              Wb.ActiveSheet.Range("L" & Max_Base).Value = "No"
+              Wb.ActiveSheet.Range("M" & Max_Base).Value = "No"
+              Wb.ActiveSheet.Range("N" & Max_Base).Value = "NA"
+              Wb.ActiveSheet.Range("P" & Max_Base).Value = "NA"
+              Wb.ActiveSheet.Range("Q" & Max_Base).Value = "No"
+              Wb.ActiveSheet.Range("T" & Max_Base).Value = "NA"
+              Wb.ActiveSheet.Range("U" & Max_Base).Value = "NO"
+              
+              Wb.ActiveSheet.Rows(Max_Base).WrapText = False
+              Exit For
+           End If
+       Next
+       ElseIf Application.WorksheetFunction.IsNumber(Application.Match(Workbooks("OpenTickets").Worksheets("Sheet1").Range("A" & a).Value, Wb.ActiveSheet.Range("A:A"), 0)) Then
+       row_numb = Application.Match(Workbooks("OpenTickets").Worksheets("Sheet1").Range("A" & a).Value, Wb.ActiveSheet.Range("A:A"), 0)
+       If Workbooks("OpenTickets").Worksheets("Sheet1").Range("J" & a).Value = "In progress" Then
+                 Wb.ActiveSheet.Range("G" & row_numb).Value = "In-Progress"
+              ElseIf Workbooks("OpenTickets").Worksheets("Sheet1").Range("J" & a).Value = "Awaiting customer information" Or Workbooks("OpenTickets").Worksheets("Sheet1").Range("J" & a).Value = "Awaiting external information" Then
+                 Wb.ActiveSheet.Range("G" & row_numb).Value = "On-hold"
+       End If
+       For i = 0 To UBound(Team)
+            If Workbooks("OpenTickets").Worksheets("Sheet1").Range("G" & a).Value = Team(i) Then
+                Wb.ActiveSheet.Range("F" & row_numb).Value = Team_Acc(i)
+                Exit For
+            End If
+       Next
+    End If
+Next
+    
+Workbooks("OpenTickets").Close SaveChanges:=False
+    
+' Look for closed tickets sheet - open it
+Workbooks.Open Filename:=folderPath & "\ClosedTickets" & ".xlsx"
+
+' Iterate across closed tickets and if in the base sheet - close it
+' Iterate across open tickets and if not in the base sheet - add to that
+' Populate the remaining columns for the newly added open ticket rows
+
+Max_Closed = Workbooks("ClosedTickets").Worksheets("Sheet1").Cells(Rows.Count, 1).End(xlUp).Row
+
+For b = 2 To Max_Closed
+    If Application.WorksheetFunction.IsError(Application.Match(Workbooks("ClosedTickets").Worksheets("Sheet1").Range("A" & b).Value, Wb.ActiveSheet.Range("A:A"), 0)) Then
+       For i = 0 To UBound(Team)
+           If Workbooks("ClosedTickets").Worksheets("Sheet1").Range("G" & b).Value = Team(i) Then
+              Max_Base = Max_Base + 1
+              Wb.ActiveSheet.Range("A" & Max_Base).Value = Workbooks("ClosedTickets").Worksheets("Sheet1").Range("A" & b).Value
+              
+             If Workbooks("ClosedTickets").Worksheets("Sheet1").Range("I" & b).Value = "User / Order Request" Then
+                 Wb.ActiveSheet.Range("B" & Max_Base).Value = Replace(Workbooks("ClosedTickets").Worksheets("Sheet1").Range("I" & b).Value, "/", "")
+                 Wb.ActiveSheet.Range("B" & Max_Base).Value = Replace(Wb.ActiveSheet.Range("B" & Max_Base).Value, " ", "")
+             Else
+                 Wb.ActiveSheet.Range("B" & Max_Base).Value = Replace(Workbooks("ClosedTickets").Worksheets("Sheet1").Range("I" & b).Value, " ", "")
+             End If
+              'Wb.ActiveSheet.Range("B" & Max_Base).Value = Workbooks("ClosedTickets").Worksheets("Sheet1").Range("I" & b).Value
+              Wb.ActiveSheet.Range("C" & Max_Base).Value = Workbooks("ClosedTickets").Worksheets("Sheet1").Range("B" & b).Value
+              Wb.ActiveSheet.Range("D" & Max_Base).Value = "P" & Right(Workbooks("ClosedTickets").Worksheets("Sheet1").Range("C" & b).Value, 1)
+              Wb.ActiveSheet.Range("E" & Max_Base).Value = Workbooks("ClosedTickets").Worksheets("Sheet1").Range("D" & b).Value
+              Wb.ActiveSheet.Range("F" & Max_Base).Value = Team_Acc(i)
+              Wb.ActiveSheet.Range("G" & Max_Base).Value = "Closed"
+              
+              'Non key columns
+              Wb.ActiveSheet.Range("I" & Max_Base).Value = "No"
+              Wb.ActiveSheet.Range("J" & Max_Base).Value = "NA"
+              Wb.ActiveSheet.Range("K" & Max_Base).Value = "NA"
+              Wb.ActiveSheet.Range("L" & Max_Base).Value = "No"
+              Wb.ActiveSheet.Range("M" & Max_Base).Value = "No"
+              Wb.ActiveSheet.Range("N" & Max_Base).Value = "NA"
+              Wb.ActiveSheet.Range("P" & Max_Base).Value = "NA"
+              Wb.ActiveSheet.Range("Q" & Max_Base).Value = "No"
+              Wb.ActiveSheet.Range("T" & Max_Base).Value = "NA"
+              Wb.ActiveSheet.Range("U" & Max_Base).Value = "NO"
+              
+              Wb.ActiveSheet.Rows(Max_Base).WrapText = False
+              Exit For
+           End If
+       Next
+    ElseIf Application.WorksheetFunction.IsNumber(Application.Match(Workbooks("ClosedTickets").Worksheets("Sheet1").Range("A" & b).Value, Wb.ActiveSheet.Range("A:A"), 0)) Then
+       row_numb = Application.Match(Workbooks("ClosedTickets").Worksheets("Sheet1").Range("A" & b).Value, Wb.ActiveSheet.Range("A:A"), 0)
+       Wb.ActiveSheet.Range("G" & row_numb).Value = "Closed"
+       For i = 0 To UBound(Team)
+            If Workbooks("ClosedTickets").Worksheets("Sheet1").Range("G" & b).Value = Team(i) Then
+                Wb.ActiveSheet.Range("F" & row_numb).Value = Team_Acc(i)
+                Exit For
+            End If
+       Next
+    End If
+Next
+
+Workbooks("ClosedTickets").Close SaveChanges:=False
+
+' Look for processed tickets sheet - open it
+Workbooks.Open Filename:=folderPath & "\ProcessedTickets" & ".xlsx"
+
+Max_Base = Wb.Worksheets("Base Data").Cells(Rows.Count, 1).End(xlUp).Row
+Max_Processed = Workbooks("ProcessedTickets").Worksheets("Sheet1").Cells(Rows.Count, 1).End(xlUp).Row
+
+For c = 2 To Max_Processed
+    For d = 2 To Max_Base
+        If Wb.Worksheets("Base Data").Range("A" & d).Value = Workbooks("ProcessedTickets").Worksheets("Sheet1").Range("A" & c).Value Then
+            Wb.Worksheets("Base Data").Range("G" & d).Value = "Processed"
+        End If
+    Next
+Next
+
+Workbooks("ProcessedTickets").Close SaveChanges:=False
+
+Application.ScreenUpdating = True
+
+End Sub
+
+

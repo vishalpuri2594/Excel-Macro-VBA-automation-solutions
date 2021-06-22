@@ -1,0 +1,90 @@
+Sub MonthStart()
+
+Application.ScreenUpdating = False
+
+' Reading the DTT for last line and it's path
+Max_Base = Sheet1.Cells(Rows.Count, 1).End(xlUp).Row
+Set Wb = ThisWorkbook
+
+For a = Max_Base To 2 Step -1
+    
+    If Wb.ActiveSheet.Range("G" & a).Value = "Closed" Or Wb.ActiveSheet.Range("G" & a).Value = "Processed" Then
+    Wb.ActiveSheet.Range("G" & a).EntireRow.Delete
+    End If
+    
+Next
+
+Max_Base = Sheet1.Cells(Rows.Count, 1).End(xlUp).Row
+
+'Format backlog tickets
+Cells(2, 1).Copy
+Wb.ActiveSheet.Range("A2,A2:A" & Max_Base).PasteSpecial (xlPasteFormats)
+Application.CutCopyMode = False
+Wb.ActiveSheet.Range("U2,U2:U" & Max_Base).Value = "YES"
+
+'CHECK FOR BACKLOGS IN THE BACKLOG SHEET OF THAT MONTH
+Sheets.Add Type:=xlWorksheet
+ActiveSheet.Name = "Temp"
+Set Wb = ThisWorkbook
+
+Max_DTT = Sheet1.Cells(Rows.Count, 1).End(xlUp).Row
+'Copy the data
+Wb.Sheets("Base Data").Range("A2:A" & Max_DTT).Copy
+'Activate the destination worksheet
+Wb.Sheets("Temp").Activate
+'Paste in the target destination
+ActiveSheet.Range("A1").PasteSpecial xlPasteValuesAndNumberFormats
+Application.CutCopyMode = False
+ActiveSheet.Range("A1").Select
+
+Max_Temp = Wb.Sheets("Temp").Cells(Rows.Count, 1).End(xlUp).Row
+
+
+folderPath = Application.ActiveWorkbook.Path
+sFound = Dir(folderPath & "\Backlog*.xlsx")
+' Look for open tickets sheet - open it
+Workbooks.Open Filename:=folderPath & "\" & sFound, UpdateLinks:=False
+Set Wb_Backlog = Workbooks(Left(sFound, Len(sFound) - 5))
+Max_Backlog = Wb_Backlog.Sheets("Base Data").Cells(Rows.Count, 1).End(xlUp).Row
+
+For i = 2 To Max_Backlog
+    Sheets("Base Data").Activate
+    If Sheets("Base Data").Range("U" & i).Value = "MDM/EP" Then
+        Max_Temp = Max_Temp + 1
+        Wb.Sheets("Temp").Range("A" & Max_Temp).Value = Wb_Backlog.Worksheets("Base Data").Range("A" & i).Value
+    End If
+Next
+
+Wb_Backlog.Close SaveChanges:=False
+
+For i = 1 To Max_Temp
+    If Application.CountIf(Range("A1:A" & Max_Temp), Cells(i, 1)) > 1 Then
+            Cells(i, 1).Interior.Color = vbYellow
+    End If
+Next
+
+For i = Max_Temp To 1 Step -1
+    If Cells(i, 1).Interior.Color = vbYellow Then
+        Cells(i, 1).EntireRow.Delete
+    End If
+Next
+
+Max_Temp = Wb.Sheets("Temp").Cells(Rows.Count, 1).End(xlUp).Row
+TicketsWithIssue = ""
+For i = 1 To Max_Temp
+    TicketsWithIssue = TicketsWithIssue & Cells(i, 1).Value & ","
+Next
+TicketsWithIssue = Left(TicketsWithIssue, Len(TicketsWithIssue) - 1)
+
+Application.DisplayAlerts = False
+Wb.Sheets("Temp").Delete
+Application.DisplayAlerts = True
+
+If TicketsWithIssue <> "" Then
+    MsgBox TicketsWithIssue & " tickets are not matched in BackLog Tickets Worksheet and Prepared backlog sheet. Check manually!", vbCritical, "Discrepancies in Backlog Tickets"
+End If
+
+Application.ScreenUpdating = True
+
+End Sub
+

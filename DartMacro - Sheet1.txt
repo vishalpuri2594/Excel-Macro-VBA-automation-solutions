@@ -1,0 +1,362 @@
+Sub DartMacro()
+
+Application.ScreenUpdating = False
+
+' Open RUS and compute efforts spent on all incidents & closed incidents for P3 & P4
+
+folderPath = Application.ActiveWorkbook.Path
+Set Wb_DART = ThisWorkbook.Worksheets("Sheet1")
+
+
+sFound = Dir(folderPath & "\BI Resource*.xlsm")
+Workbooks.Open Filename:=folderPath & "\" & sFound, UpdateLinks:=False
+
+Set Wb_RUS = Workbooks(Left(sFound, Len(sFound) - 5)).Worksheets("RUS Data")
+Max_RUS = Worksheets("RUS Data").Cells(Rows.Count, 1).End(xlUp).Row
+
+p1_all_eff_prb = 0
+p2_all_eff_prb = 0
+p3_all_eff_prb = 0
+p4_all_eff_prb = 0
+p1_all_eff_inc = 0
+p2_all_eff_inc = 0
+p3_all_eff_inc = 0
+p4_all_eff_inc = 0
+p1_clsd_eff_prb = 0
+p2_clsd_eff_prb = 0
+p3_clsd_eff_prb = 0
+p4_clsd_eff_prb = 0
+p1_clsd_eff_inc = 0
+p2_clsd_eff_inc = 0
+p3_clsd_eff_inc = 0
+p4_clsd_eff_inc = 0
+
+For i = 2 To Max_RUS
+ ' For all status, P3/P4 and different types (inc/prb)
+ If Wb_RUS.Range("G" & i).Value = "P3" And Wb_RUS.Range("D" & i).Value = "Total Effort Spent on Problems, Known error tickets" Then
+    p3_all_eff_prb = p3_all_eff_prb + Wb_RUS.Range("AN" & i).Value
+ ElseIf Wb_RUS.Range("G" & i).Value = "P4" And Wb_RUS.Range("D" & i).Value = "Total Effort Spent on Problems, Known error tickets" Then
+    p4_all_eff_prb = p4_all_eff_prb + Wb_RUS.Range("AN" & i).Value
+ ElseIf Wb_RUS.Range("G" & i).Value = "P2" And Wb_RUS.Range("D" & i).Value = "Total Effort Spent on Problems, Known error tickets" Then
+    p2_all_eff_prb = p2_all_eff_prb + Wb_RUS.Range("AN" & i).Value
+ ElseIf Wb_RUS.Range("G" & i).Value = "P1" And Wb_RUS.Range("D" & i).Value = "Total Effort Spent on Problems, Known error tickets" Then
+    p1_all_eff_prb = p1_all_eff_prb + Wb_RUS.Range("AN" & i).Value
+ ElseIf Wb_RUS.Range("G" & i).Value = "P3" And Wb_RUS.Range("D" & i).Value = "Total Effort Spent on Incidents (Calls / SysEvents / UORs)" Then
+    p3_all_eff_inc = p3_all_eff_inc + Wb_RUS.Range("AN" & i).Value
+ ElseIf Wb_RUS.Range("G" & i).Value = "P4" And Wb_RUS.Range("D" & i).Value = "Total Effort Spent on Incidents (Calls / SysEvents / UORs)" Then
+    p4_all_eff_inc = p4_all_eff_inc + Wb_RUS.Range("AN" & i).Value
+ ElseIf Wb_RUS.Range("G" & i).Value = "P2" And Wb_RUS.Range("D" & i).Value = "Total Effort Spent on Incidents (Calls / SysEvents / UORs)" Then
+    p2_all_eff_inc = p2_all_eff_inc + Wb_RUS.Range("AN" & i).Value
+ ElseIf Wb_RUS.Range("G" & i).Value = "P1" And Wb_RUS.Range("D" & i).Value = "Total Effort Spent on Incidents (Calls / SysEvents / UORs)" Then
+    p1_all_eff_inc = p1_all_eff_inc + Wb_RUS.Range("AN" & i).Value
+ End If
+Next
+
+For i = 2 To Max_RUS
+ ' For closed status, P3/P4 and different types (inc/prb)
+ If Wb_RUS.Range("G" & i).Value = "P3" And Wb_RUS.Range("D" & i).Value = "Total Effort Spent on Problems, Known error tickets" And Wb_RUS.Range("F" & i).Value = "Closed" Then
+    p3_clsd_eff_prb = p3_clsd_eff_prb + Wb_RUS.Range("AO" & i).Value
+ ElseIf Wb_RUS.Range("G" & i).Value = "P4" And Wb_RUS.Range("D" & i).Value = "Total Effort Spent on Problems, Known error tickets" And Wb_RUS.Range("F" & i).Value = "Closed" Then
+    p4_clsd_eff_prb = p4_clsd_eff_prb + Wb_RUS.Range("AO" & i).Value
+ ElseIf Wb_RUS.Range("G" & i).Value = "P2" And Wb_RUS.Range("D" & i).Value = "Total Effort Spent on Problems, Known error tickets" And Wb_RUS.Range("F" & i).Value = "Closed" Then
+    p2_clsd_eff_prb = p2_clsd_eff_prb + Wb_RUS.Range("AO" & i).Value
+ ElseIf Wb_RUS.Range("G" & i).Value = "P1" And Wb_RUS.Range("D" & i).Value = "Total Effort Spent on Problems, Known error tickets" And Wb_RUS.Range("F" & i).Value = "Closed" Then
+    p1_clsd_eff_prb = p1_clsd_eff_prb + Wb_RUS.Range("AO" & i).Value
+ ElseIf Wb_RUS.Range("G" & i).Value = "P3" And Wb_RUS.Range("D" & i).Value = "Total Effort Spent on Incidents (Calls / SysEvents / UORs)" And Wb_RUS.Range("F" & i).Value = "Closed" Then
+    p3_clsd_eff_inc = p3_clsd_eff_inc + Wb_RUS.Range("AO" & i).Value
+ ElseIf Wb_RUS.Range("G" & i).Value = "P4" And Wb_RUS.Range("D" & i).Value = "Total Effort Spent on Incidents (Calls / SysEvents / UORs)" And Wb_RUS.Range("F" & i).Value = "Closed" Then
+    p4_clsd_eff_inc = p4_clsd_eff_inc + Wb_RUS.Range("AO" & i).Value
+ ElseIf Wb_RUS.Range("G" & i).Value = "P2" And Wb_RUS.Range("D" & i).Value = "Total Effort Spent on Incidents (Calls / SysEvents / UORs)" And Wb_RUS.Range("F" & i).Value = "Closed" Then
+    p2_clsd_eff_inc = p2_clsd_eff_inc + Wb_RUS.Range("AO" & i).Value
+ ElseIf Wb_RUS.Range("G" & i).Value = "P1" And Wb_RUS.Range("D" & i).Value = "Total Effort Spent on Incidents (Calls / SysEvents / UORs)" And Wb_RUS.Range("F" & i).Value = "Closed" Then
+    p1_clsd_eff_inc = p1_clsd_eff_inc + Wb_RUS.Range("AO" & i).Value
+ End If
+Next
+
+Wb_DART.Range("D39").Value = p1_all_eff_inc
+Wb_DART.Range("E39").Value = p2_all_eff_inc
+Wb_DART.Range("F39").Value = p3_all_eff_inc
+Wb_DART.Range("G39").Value = p4_all_eff_inc
+Wb_DART.Range("D40").Value = p1_clsd_eff_inc
+Wb_DART.Range("E40").Value = p2_clsd_eff_inc
+Wb_DART.Range("F40").Value = p3_clsd_eff_inc
+Wb_DART.Range("G40").Value = p4_clsd_eff_inc
+
+Wb_DART.Range("D57").Value = p1_all_eff_prb
+Wb_DART.Range("E57").Value = p2_all_eff_prb
+Wb_DART.Range("F57").Value = p3_all_eff_prb
+Wb_DART.Range("G57").Value = p4_all_eff_prb
+Wb_DART.Range("D58").Value = p1_clsd_eff_prb
+Wb_DART.Range("E58").Value = p2_clsd_eff_prb
+Wb_DART.Range("F58").Value = p3_clsd_eff_prb
+Wb_DART.Range("G58").Value = p4_clsd_eff_prb
+
+
+' Calculating efforts of each resource for other activities
+
+eff_exttrng = 0
+eff_leave = 0
+eff_mtngs = 0
+eff_misc = 0
+eff_monit = 0
+eff_nphrs = 0
+eff_opwbs = 0
+eff_pmo = 0
+eff_prjkt = 0
+eff_srm = 0
+eff_tlact = 0
+eff_trbsht = 0
+
+For i = 2 To Max_RUS
+ If Wb_RUS.Range("D" & i).Value = "External Training" Then
+    eff_exttrng = eff_exttrng + Wb_RUS.Range("AN" & i).Value
+ ElseIf Wb_RUS.Range("D" & i).Value = "Leave / Sick / Public / Optional Holidays" Then
+    eff_leave = eff_leave + Wb_RUS.Range("AN" & i).Value
+ ElseIf Wb_RUS.Range("D" & i).Value = "Meetings" Then
+    eff_mtngs = eff_mtngs + Wb_RUS.Range("AN" & i).Value
+ ElseIf Wb_RUS.Range("D" & i).Value = "Misc Tasks charged to Project WBS" Then
+    eff_misc = eff_misc + Wb_RUS.Range("AN" & i).Value
+ ElseIf Wb_RUS.Range("D" & i).Value = "Monitoring  (IDOC/PI/JOBS ETC)" Then
+    eff_monit = eff_monit + Wb_RUS.Range("AN" & i).Value
+ ElseIf Wb_RUS.Range("D" & i).Value = "Non-Productive Hours" Then
+    eff_nphrs = eff_nphrs + Wb_RUS.Range("AN" & i).Value
+ ElseIf Wb_RUS.Range("D" & i).Value = "Other Project WBS" Then
+    eff_opwbs = eff_opwbs + Wb_RUS.Range("AN" & i).Value
+ ElseIf Wb_RUS.Range("D" & i).Value = "PMO activities" Then
+    eff_pmo = eff_pmo + Wb_RUS.Range("AN" & i).Value
+ ElseIf Wb_RUS.Range("D" & i).Value = "Project KX / KT" Then
+    eff_prjkt = eff_prjkt + Wb_RUS.Range("AN" & i).Value
+ ElseIf Wb_RUS.Range("D" & i).Value = "RCV -SRM" Then
+    eff_srm = eff_srm + Wb_RUS.Range("AN" & i).Value
+ ElseIf Wb_RUS.Range("D" & i).Value = "Team Lead activities" Then
+    eff_tlact = eff_tlact + Wb_RUS.Range("AN" & i).Value
+ ElseIf Wb_RUS.Range("D" & i).Value = "Trouble Shooting" Then
+    eff_trbsht = eff_trbsht + Wb_RUS.Range("AN" & i).Value
+ End If
+Next
+
+Wb_DART.Range("D6").Formula = "=NETWORKDAYS(DATE(YEAR(TODAY()),MONTH(TODAY()),1),TODAY())-1"
+
+Wb_DART.Range("D10").Value = eff_nphrs
+Wb_DART.Range("D11").Value = eff_prjkt
+'Wb_DART.Range("D12").Value =
+Wb_DART.Range("D13").Value = eff_mtngs
+Wb_DART.Range("D14").Value = eff_monit
+Wb_DART.Range("D15").Value = eff_trbsht
+Wb_DART.Range("D16").Value = eff_pmo
+Wb_DART.Range("D17").Value = eff_srm
+Wb_DART.Range("D18").Value = eff_tlact
+Wb_DART.Range("D19").Value = eff_misc
+Wb_DART.Range("D20").Value = eff_exttrng
+Wb_DART.Range("D21").Value = eff_leave
+Wb_DART.Range("D22").Value = eff_opwbs
+
+Workbooks(Left(sFound, Len(sFound) - 5)).Close SaveChanges:=False
+
+
+' Open DTT and compute efforts spent on all incidents & closed incidents for P3 & P4
+
+sFound = Dir(folderPath & "\BI GBS_BW L2 Status*.xlsm")
+Workbooks.Open Filename:=folderPath & "\" & sFound, UpdateLinks:=False
+
+Set Wb_DTT = Workbooks(Left(sFound, Len(sFound) - 5)).Worksheets("Base Data")
+Max_DTT = Worksheets("Base Data").Cells(Rows.Count, 1).End(xlUp).Row
+
+p1_new_inc = 0
+p2_new_inc = 0
+p3_new_inc = 0
+p4_new_inc = 0
+p1_onhold_inc = 0
+p2_onhold_inc = 0
+p3_onhold_inc = 0
+p4_onhold_inc = 0
+p1_clsd_inc = 0
+p2_clsd_inc = 0
+p3_clsd_inc = 0
+p4_clsd_inc = 0
+p1_bcklg_mon_strt_inc = 0
+p2_bcklg_mon_strt_inc = 0
+p3_bcklg_mon_strt_inc = 0
+p4_bcklg_mon_strt_inc = 0
+
+p1_new_prb = 0
+p2_new_prb = 0
+p3_new_prb = 0
+p4_new_prb = 0
+p1_onhold_prb = 0
+p2_onhold_prb = 0
+p3_onhold_prb = 0
+p4_onhold_prb = 0
+p1_clsd_prb = 0
+p2_clsd_prb = 0
+p3_clsd_prb = 0
+p4_clsd_prb = 0
+p1_bcklg_mon_strt_prb = 0
+p2_bcklg_mon_strt_prb = 0
+p3_bcklg_mon_strt_prb = 0
+p4_bcklg_mon_strt_prb = 0
+
+
+'For incidents
+For j = 2 To Max_DTT
+   If (Wb_DTT.Range("B" & j).Value = "Call" Or Wb_DTT.Range("B" & j).Value = "SystemEvent" Or Wb_DTT.Range("B" & j).Value = "UserOrderRequest") And Wb_DTT.Range("U" & j).Value = "NO" And Wb_DTT.Range("D" & j).Value = "P3" Then
+    p3_new_inc = p3_new_inc + 1
+   ElseIf (Wb_DTT.Range("B" & j).Value = "Call" Or Wb_DTT.Range("B" & j).Value = "SystemEvent" Or Wb_DTT.Range("B" & j).Value = "UserOrderRequest") And Wb_DTT.Range("U" & j).Value = "NO" And Wb_DTT.Range("D" & j).Value = "P4" Then
+    p4_new_inc = p4_new_inc + 1
+   ElseIf (Wb_DTT.Range("B" & j).Value = "Call" Or Wb_DTT.Range("B" & j).Value = "SystemEvent" Or Wb_DTT.Range("B" & j).Value = "UserOrderRequest") And Wb_DTT.Range("U" & j).Value = "NO" And Wb_DTT.Range("D" & j).Value = "P2" Then
+    p2_new_inc = p2_new_inc + 1
+   ElseIf (Wb_DTT.Range("B" & j).Value = "Call" Or Wb_DTT.Range("B" & j).Value = "SystemEvent" Or Wb_DTT.Range("B" & j).Value = "UserOrderRequest") And Wb_DTT.Range("U" & j).Value = "NO" And Wb_DTT.Range("D" & j).Value = "P1" Then
+    p1_new_inc = p1_new_inc + 1
+   End If
+Next
+
+For j = 2 To Max_DTT
+   If (Wb_DTT.Range("B" & j).Value = "Call" Or Wb_DTT.Range("B" & j).Value = "SystemEvent" Or Wb_DTT.Range("B" & j).Value = "UserOrderRequest") And Wb_DTT.Range("D" & j).Value = "P3" And Wb_DTT.Range("G" & j).Value = "On-hold" Then
+    p3_onhold_inc = p3_onhold_inc + 1
+   ElseIf (Wb_DTT.Range("B" & j).Value = "Call" Or Wb_DTT.Range("B" & j).Value = "SystemEvent" Or Wb_DTT.Range("B" & j).Value = "UserOrderRequest") And Wb_DTT.Range("D" & j).Value = "P4" And Wb_DTT.Range("G" & j).Value = "On-hold" Then
+    p4_onhold_inc = p4_onhold_inc + 1
+   ElseIf (Wb_DTT.Range("B" & j).Value = "Call" Or Wb_DTT.Range("B" & j).Value = "SystemEvent" Or Wb_DTT.Range("B" & j).Value = "UserOrderRequest") And Wb_DTT.Range("D" & j).Value = "P2" And Wb_DTT.Range("G" & j).Value = "On-hold" Then
+    p2_onhold_inc = p2_onhold_inc + 1
+   ElseIf (Wb_DTT.Range("B" & j).Value = "Call" Or Wb_DTT.Range("B" & j).Value = "SystemEvent" Or Wb_DTT.Range("B" & j).Value = "UserOrderRequest") And Wb_DTT.Range("D" & j).Value = "P1" And Wb_DTT.Range("G" & j).Value = "On-hold" Then
+    p1_onhold_inc = p1_onhold_inc + 1
+   End If
+Next
+
+For j = 2 To Max_DTT
+   If (Wb_DTT.Range("B" & j).Value = "Call" Or Wb_DTT.Range("B" & j).Value = "SystemEvent" Or Wb_DTT.Range("B" & j).Value = "UserOrderRequest") And Wb_DTT.Range("D" & j).Value = "P3" And Wb_DTT.Range("G" & j).Value = "Closed" Then
+    p3_clsd_inc = p3_clsd_inc + 1
+   ElseIf (Wb_DTT.Range("B" & j).Value = "Call" Or Wb_DTT.Range("B" & j).Value = "SystemEvent" Or Wb_DTT.Range("B" & j).Value = "UserOrderRequest") And Wb_DTT.Range("D" & j).Value = "P4" And Wb_DTT.Range("G" & j).Value = "Closed" Then
+    p4_clsd_inc = p4_clsd_inc + 1
+   ElseIf (Wb_DTT.Range("B" & j).Value = "Call" Or Wb_DTT.Range("B" & j).Value = "SystemEvent" Or Wb_DTT.Range("B" & j).Value = "UserOrderRequest") And Wb_DTT.Range("D" & j).Value = "P2" And Wb_DTT.Range("G" & j).Value = "Closed" Then
+    p2_clsd_inc = p2_clsd_inc + 1
+   ElseIf (Wb_DTT.Range("B" & j).Value = "Call" Or Wb_DTT.Range("B" & j).Value = "SystemEvent" Or Wb_DTT.Range("B" & j).Value = "UserOrderRequest") And Wb_DTT.Range("D" & j).Value = "P1" And Wb_DTT.Range("G" & j).Value = "Closed" Then
+    p1_clsd_inc = p1_clsd_inc + 1
+   End If
+Next
+
+For j = 2 To Max_DTT
+   If (Wb_DTT.Range("B" & j).Value = "Call" Or Wb_DTT.Range("B" & j).Value = "SystemEvent" Or Wb_DTT.Range("B" & j).Value = "UserOrderRequest") And Wb_DTT.Range("D" & j).Value = "P3" And Wb_DTT.Range("U" & j).Value = "YES" Then
+    p3_bcklg_mon_strt_inc = p3_bcklg_mon_strt_inc + 1
+   ElseIf (Wb_DTT.Range("B" & j).Value = "Call" Or Wb_DTT.Range("B" & j).Value = "SystemEvent" Or Wb_DTT.Range("B" & j).Value = "UserOrderRequest") And Wb_DTT.Range("D" & j).Value = "P4" And Wb_DTT.Range("U" & j).Value = "YES" Then
+    p4_bcklg_mon_strt_inc = p4_bcklg_mon_strt_inc + 1
+   ElseIf (Wb_DTT.Range("B" & j).Value = "Call" Or Wb_DTT.Range("B" & j).Value = "SystemEvent" Or Wb_DTT.Range("B" & j).Value = "UserOrderRequest") And Wb_DTT.Range("D" & j).Value = "P2" And Wb_DTT.Range("U" & j).Value = "YES" Then
+    p2_bcklg_mon_strt_inc = p2_bcklg_mon_strt_inc + 1
+   ElseIf (Wb_DTT.Range("B" & j).Value = "Call" Or Wb_DTT.Range("B" & j).Value = "SystemEvent" Or Wb_DTT.Range("B" & j).Value = "UserOrderRequest") And Wb_DTT.Range("D" & j).Value = "P1" And Wb_DTT.Range("U" & j).Value = "YES" Then
+    p1_bcklg_mon_strt_inc = p1_bcklg_mon_strt_inc + 1
+   End If
+Next
+
+' For Problems
+For j = 2 To Max_DTT
+   If (Wb_DTT.Range("B" & j).Value = "Problem" Or Wb_DTT.Range("B" & j).Value = "KnownError") And Wb_DTT.Range("U" & j).Value = "NO" And Wb_DTT.Range("D" & j).Value = "P3" Then
+    p3_new_prb = p3_new_prb + 1
+   ElseIf (Wb_DTT.Range("B" & j).Value = "Problem" Or Wb_DTT.Range("B" & j).Value = "KnownError") And Wb_DTT.Range("U" & j).Value = "NO" And Wb_DTT.Range("D" & j).Value = "P4" Then
+    p4_new_prb = p4_new_prb + 1
+   ElseIf (Wb_DTT.Range("B" & j).Value = "Problem" Or Wb_DTT.Range("B" & j).Value = "KnownError") And Wb_DTT.Range("U" & j).Value = "NO" And Wb_DTT.Range("D" & j).Value = "P2" Then
+    p2_new_prb = p2_new_prb + 1
+   ElseIf (Wb_DTT.Range("B" & j).Value = "Problem" Or Wb_DTT.Range("B" & j).Value = "KnownError") And Wb_DTT.Range("U" & j).Value = "NO" And Wb_DTT.Range("D" & j).Value = "P1" Then
+    p1_new_prb = p1_new_prb + 1
+   End If
+Next
+
+For j = 2 To Max_DTT
+   If (Wb_DTT.Range("B" & j).Value = "Problem" Or Wb_DTT.Range("B" & j).Value = "KnownError") And Wb_DTT.Range("D" & j).Value = "P3" And Wb_DTT.Range("G" & j).Value = "On-hold" Then
+    p3_onhold_prb = p3_onhold_prb + 1
+   ElseIf (Wb_DTT.Range("B" & j).Value = "Problem" Or Wb_DTT.Range("B" & j).Value = "KnownError") And Wb_DTT.Range("D" & j).Value = "P4" And Wb_DTT.Range("G" & j).Value = "On-hold" Then
+    p4_onhold_prb = p4_onhold_prb + 1
+   ElseIf (Wb_DTT.Range("B" & j).Value = "Problem" Or Wb_DTT.Range("B" & j).Value = "KnownError") And Wb_DTT.Range("D" & j).Value = "P2" And Wb_DTT.Range("G" & j).Value = "On-hold" Then
+    p2_onhold_prb = p2_onhold_prb + 1
+   ElseIf (Wb_DTT.Range("B" & j).Value = "Problem" Or Wb_DTT.Range("B" & j).Value = "KnownError") And Wb_DTT.Range("D" & j).Value = "P1" And Wb_DTT.Range("G" & j).Value = "On-hold" Then
+    p1_onhold_prb = p1_onhold_prb + 1
+   End If
+Next
+
+For j = 2 To Max_DTT
+   If (Wb_DTT.Range("B" & j).Value = "Problem" Or Wb_DTT.Range("B" & j).Value = "KnownError") And Wb_DTT.Range("D" & j).Value = "P3" And Wb_DTT.Range("G" & j).Value = "Closed" Then
+    p3_clsd_prb = p3_clsd_prb + 1
+   ElseIf (Wb_DTT.Range("B" & j).Value = "Problem" Or Wb_DTT.Range("B" & j).Value = "KnownError") And Wb_DTT.Range("D" & j).Value = "P4" And Wb_DTT.Range("G" & j).Value = "Closed" Then
+    p4_clsd_prb = p4_clsd_prb + 1
+   ElseIf (Wb_DTT.Range("B" & j).Value = "Problem" Or Wb_DTT.Range("B" & j).Value = "KnownError") And Wb_DTT.Range("D" & j).Value = "P2" And Wb_DTT.Range("G" & j).Value = "Closed" Then
+    p2_clsd_prb = p2_clsd_prb + 1
+   ElseIf (Wb_DTT.Range("B" & j).Value = "Problem" Or Wb_DTT.Range("B" & j).Value = "KnownError") And Wb_DTT.Range("D" & j).Value = "P1" And Wb_DTT.Range("G" & j).Value = "Closed" Then
+    p1_clsd_prb = p1_clsd_prb + 1
+   End If
+Next
+
+For j = 2 To Max_DTT
+   If (Wb_DTT.Range("B" & j).Value = "Problem" Or Wb_DTT.Range("B" & j).Value = "KnownError") And Wb_DTT.Range("D" & j).Value = "P3" And Wb_DTT.Range("U" & j).Value = "YES" Then
+    p3_bcklg_mon_strt_prb = p3_bcklg_mon_strt_prb + 1
+   ElseIf (Wb_DTT.Range("B" & j).Value = "Problem" Or Wb_DTT.Range("B" & j).Value = "KnownError") And Wb_DTT.Range("D" & j).Value = "P4" And Wb_DTT.Range("U" & j).Value = "YES" Then
+    p4_bcklg_mon_strt_prb = p4_bcklg_mon_strt_prb + 1
+   ElseIf (Wb_DTT.Range("B" & j).Value = "Problem" Or Wb_DTT.Range("B" & j).Value = "KnownError") And Wb_DTT.Range("D" & j).Value = "P2" And Wb_DTT.Range("U" & j).Value = "YES" Then
+    p2_bcklg_mon_strt_prb = p2_bcklg_mon_strt_prb + 1
+   ElseIf (Wb_DTT.Range("B" & j).Value = "Problem" Or Wb_DTT.Range("B" & j).Value = "KnownError") And Wb_DTT.Range("D" & j).Value = "P1" And Wb_DTT.Range("U" & j).Value = "YES" Then
+    p1_bcklg_mon_strt_prb = p1_bcklg_mon_strt_prb + 1
+   End If
+Next
+
+' Updating the DART Template
+Wb_DART.Range("D27").Value = p1_new_inc
+Wb_DART.Range("E27").Value = p2_new_inc
+Wb_DART.Range("F27").Value = p3_new_inc
+Wb_DART.Range("G27").Value = p4_new_inc
+Wb_DART.Range("D28").Value = p1_onhold_inc
+Wb_DART.Range("E28").Value = p2_onhold_inc
+Wb_DART.Range("F28").Value = p3_onhold_inc
+Wb_DART.Range("G28").Value = p4_onhold_inc
+Wb_DART.Range("D30").Value = p1_bcklg_mon_strt_inc
+Wb_DART.Range("E30").Value = p2_bcklg_mon_strt_inc
+Wb_DART.Range("F30").Value = p3_bcklg_mon_strt_inc
+Wb_DART.Range("G30").Value = p4_bcklg_mon_strt_inc
+Wb_DART.Range("D36").Value = p1_clsd_inc
+Wb_DART.Range("E36").Value = p2_clsd_inc
+Wb_DART.Range("F36").Value = p3_clsd_inc
+Wb_DART.Range("G36").Value = p4_clsd_inc
+Wb_DART.Range("D34").Value = Wb_DART.Range("D27").Value
+Wb_DART.Range("D35").Value = Wb_DART.Range("D27").Value
+Wb_DART.Range("E34").Value = Wb_DART.Range("E27").Value
+Wb_DART.Range("E35").Value = Wb_DART.Range("E27").Value
+Wb_DART.Range("F34").Value = Wb_DART.Range("F27").Value
+Wb_DART.Range("F35").Value = Wb_DART.Range("F27").Value
+Wb_DART.Range("G34").Value = Wb_DART.Range("G27").Value
+Wb_DART.Range("G35").Value = Wb_DART.Range("G27").Value
+Wb_DART.Range("D37").Value = Wb_DART.Range("D36").Value
+Wb_DART.Range("E37").Value = Wb_DART.Range("E36").Value
+Wb_DART.Range("F37").Value = Wb_DART.Range("F36").Value
+Wb_DART.Range("G37").Value = Wb_DART.Range("G36").Value
+
+Wb_DART.Range("D45").Value = p1_new_prb
+Wb_DART.Range("E45").Value = p2_new_prb
+Wb_DART.Range("F45").Value = p3_new_prb
+Wb_DART.Range("G45").Value = p4_new_prb
+Wb_DART.Range("D46").Value = p1_onhold_prb
+Wb_DART.Range("E46").Value = p2_onhold_prb
+Wb_DART.Range("F46").Value = p3_onhold_prb
+Wb_DART.Range("G46").Value = p4_onhold_prb
+Wb_DART.Range("D48").Value = p1_bcklg_mon_strt_prb
+Wb_DART.Range("E48").Value = p2_bcklg_mon_strt_prb
+Wb_DART.Range("F48").Value = p3_bcklg_mon_strt_prb
+Wb_DART.Range("G48").Value = p4_bcklg_mon_strt_prb
+Wb_DART.Range("D54").Value = p1_clsd_prb
+Wb_DART.Range("E54").Value = p2_clsd_prb
+Wb_DART.Range("F54").Value = p3_clsd_prb
+Wb_DART.Range("G54").Value = p4_clsd_prb
+Wb_DART.Range("D52").Value = Wb_DART.Range("D45").Value
+Wb_DART.Range("D53").Value = Wb_DART.Range("D45").Value
+Wb_DART.Range("E52").Value = Wb_DART.Range("E45").Value
+Wb_DART.Range("E53").Value = Wb_DART.Range("E45").Value
+Wb_DART.Range("F52").Value = Wb_DART.Range("F45").Value
+Wb_DART.Range("F53").Value = Wb_DART.Range("F45").Value
+Wb_DART.Range("G52").Value = Wb_DART.Range("G45").Value
+Wb_DART.Range("G53").Value = Wb_DART.Range("G45").Value
+Wb_DART.Range("D55").Value = Wb_DART.Range("D54").Value
+Wb_DART.Range("E55").Value = Wb_DART.Range("E54").Value
+Wb_DART.Range("F55").Value = Wb_DART.Range("F54").Value
+Wb_DART.Range("G55").Value = Wb_DART.Range("G54").Value
+
+Workbooks(Left(sFound, Len(sFound) - 5)).Close SaveChanges:=False
+
+Application.ScreenUpdating = True
+
+End Sub
+

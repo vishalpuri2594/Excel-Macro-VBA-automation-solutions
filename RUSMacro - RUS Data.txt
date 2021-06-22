@@ -1,0 +1,57 @@
+Sub RUSMacro()
+
+Application.ScreenUpdating = False
+
+Max_RUS = Sheet3.Cells(Rows.Count, 1).End(xlUp).Row
+folderPath = Application.ActiveWorkbook.Path
+Set Wb_RUS = ThisWorkbook.Worksheets("RUS Data")
+
+' Look for DTT macro enabled excel sheet
+sFound = Dir(folderPath & "\*.xlsm")
+Workbooks.Open Filename:=folderPath & "\" & sFound, UpdateLinks:=False
+
+Set Wb_DTT = Workbooks(Left(sFound, Len(sFound) - 5)).Worksheets("Base Data")
+Max_DTT = Wb_DTT.Cells(Rows.Count, 1).End(xlUp).Row
+
+For a = 2 To Max_DTT
+	'Wb_DTT.Range("O" & a).Value = "" And Wb_DTT.Range("R" & a).Value = "" And Wb_DTT.Range("S" & a).Value = ""	
+    If Application.WorksheetFunction.IsError(Application.Match(Wb_DTT.Range("A" & a).Value, Wb_RUS.Range("E:E"), 0)) = True Then
+       Max_RUS = Max_RUS + 1
+       Wb_RUS.Range("A" & Max_RUS).Value = "MDM/EP"
+       Wb_RUS.Range("C" & Max_RUS).Value = Wb_DTT.Range("F" & a).Value
+       If Wb_DTT.Range("B" & a).Value = "Known Error" Or Wb_DTT.Range("B" & a).Value = "Problem" Then
+         Wb_RUS.Range("D" & Max_RUS).Value = "Total Effort Spent on Problems, Known error tickets"
+       Else
+         Wb_RUS.Range("D" & Max_RUS).Value = "Total Effort Spent on Incidents (Calls / SysEvents / UORs)"
+       End If
+       Wb_RUS.Range("E" & Max_RUS).Value = Wb_DTT.Range("A" & a).Value
+       Wb_RUS.Range("F" & Max_RUS).Value = Wb_DTT.Range("G" & a).Value
+       Wb_RUS.Range("G" & Max_RUS).Value = Wb_DTT.Range("D" & a).Value
+       Wb_RUS.Range("AN" & Max_RUS).Formula = "=SUM(I" & Max_RUS & ":AM" & Max_RUS & ")"
+       Wb_RUS.Range("AO" & Max_RUS).Value = "=SUM(H" & Max_RUS & ":AM" & Max_RUS & ")"
+       Range("A" & Max_RUS & ":AO" & Max_RUS).Borders.LineStyle = xlContinuous
+       Wb_RUS.Rows(Max_RUS).WrapText = False
+    End If
+Next
+
+' Update all the statuses of the tickets in RUS from the DTT file
+For i = 2 To Max_RUS
+   If Wb_RUS.Range("E" & i).Value <> "" Then
+     If Application.WorksheetFunction.IsError(Application.Match(Wb_RUS.Range("E" & i).Value, Wb_DTT.Range("A:A"), 0)) = False Then
+        k = Application.Match(Wb_RUS.Range("E" & i).Value, Wb_DTT.Range("A:A"), 0)
+        Wb_RUS.Range("F" & i).Value = Wb_DTT.Range("G" & k).Value
+        'Wb_RUS.Range("C" & i).Value = Wb_DTT.Range("F" & k).Value
+     End If
+   End If
+   'To update the processed tickets from RUS sheet
+   If Wb_RUS.Range("F" & i).Value = "Processed" Then
+        Wb_RUS.Range("F" & i).Value = "Closed"
+   End If
+Next
+ 
+Workbooks(Left(sFound, Len(sFound) - 5)).Close SaveChanges:=False
+
+Application.ScreenUpdating = True
+
+End Sub
+
